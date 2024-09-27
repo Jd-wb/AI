@@ -3,42 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot</title>
-    <style>
-        #chatbox {
-            border: 1px solid #ccc;
-            height: 400px;
-            overflow-y: scroll;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-        #userInput {
-            width: calc(100% - 22px);
-        }
-    </style>
+    <title>AI Chatbot</title>
 </head>
 <body>
-    <div id="chatbox"></div>
-    <input type="text" id="userInput" placeholder="Type your message..." />
-    <button id="sendBtn">Send</button>
+    <h1>AI Chatbot</h1>
+    <div id="chat-container">
+        <div id="chat-messages"></div>
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
 
     <script>
-        document.getElementById('sendBtn').onclick = async function() {
-            const userInput = document.getElementById('userInput').value;
-            document.getElementById('chatbox').innerHTML += `<div>User: ${userInput}</div>`;
-            document.getElementById('userInput').value = '';
+        async function sendMessage() {
+            const userInput = document.getElementById('user-input');
+            const chatMessages = document.getElementById('chat-messages');
+            
+            const userMessage = userInput.value;
+            chatMessages.innerHTML += `<p><strong>You:</strong> ${userMessage}</p>`;
+            userInput.value = '';
 
-            const response = await fetch('/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ message: userInput })
-            });
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: userMessage }),
+                });
 
-            const data = await response.json();
-            document.getElementById('chatbox').innerHTML += `<div>AI: ${data.reply}</div>`;
-        };
+                const data = await response.json();
+                chatMessages.innerHTML += `<p><strong>AI:</strong> ${data.reply}</p>`;
+            } catch (error) {
+                console.error('Error:', error);
+                chatMessages.innerHTML += `<p><strong>Error:</strong> Failed to get response from the server.</p>`;
+            }
+        }
     </script>
 </body>
 </html>
